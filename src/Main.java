@@ -1,9 +1,10 @@
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
-
+        // Esempio di liste di prodotti e ordini
         List<Product> products = List.of(
                 new Product(1, "Lord of the Rings", "Books", 120),
                 new Product(2, "Giocattolo bello", "Baby", 50),
@@ -25,30 +26,30 @@ public class Main {
                         List.of(products.get(2), products.get(4)), customers.get(1))
         );
 
-
-        // ---------ES1. Ottenere una lista di prodotti nella categoria "Books" con prezzo > 100
+        // -----------ES1. Ottenere una lista di prodotti nella categoria "Books" con prezzo > 100
         List<Product> expensiveBooks = products.stream()
                 .filter(p -> "Books".equals(p.getCategory()) && p.getPrice() > 100)
-                .toList();
-        System.out.println("Prodotti nella categoria 'Books' con prezzo > 100: " + expensiveBooks);
+                .collect(Collectors.toList());
+        System.out.println("Prodotti nella categoria 'Books' con prezzo > 100:");
+        printProducts(expensiveBooks);
 
-
-        // ---------ES2. Ottenere una lista di ordini con prodotti nella categoria "Baby"
+        // ------------ES2. Ottenere una lista di ordini con prodotti nella categoria "Baby"
         List<Order> ordersWithBabyProducts = orders.stream()
                 .filter(order -> order.getProducts().stream()
                         .anyMatch(product -> "Baby".equals(product.getCategory())))
                 .toList();
-        System.out.println("Ordini con prodotti nella categoria 'Baby': " + ordersWithBabyProducts);
+        System.out.println("Ordini con prodotti nella categoria 'Baby':");
+        printOrders(ordersWithBabyProducts);
 
-
-        // -----------ES3. Ottenere una lista di prodotti nella categoria "Boys" con 10% di sconto
+        // ----------ES3. Ottenere una lista di prodotti nella categoria "Boys" con 10% di sconto
         List<Product> discountedBoysProducts = products.stream()
                 .filter(p -> "Boys".equals(p.getCategory()))
                 .peek(p -> p.setPrice(p.getPrice() * 0.9)) // applicare 10% di sconto
                 .toList();
-        System.out.println("Prodotti nella categoria 'Boys' con sconto del 10%: " + discountedBoysProducts);
+        System.out.println("Prodotti nella categoria 'Boys' con sconto del 10%:");
+        printProducts(discountedBoysProducts);
 
-        // -----------ES4. Ottenere una lista di prodotti ordinati da clienti di livello 2 tra il 01-Feb-2021 e il 01-Apr-2021
+        // ------------ES4. Ottenere una lista di prodotti ordinati da clienti di livello 2 tra il 01-Feb-2021 e il 01-Apr-2021
         LocalDate startDate = LocalDate.of(2021, 2, 1);
         LocalDate endDate = LocalDate.of(2021, 4, 1);
         List<Product> productsOrderedByTier2 = orders.stream()
@@ -56,6 +57,28 @@ public class Main {
                 .filter(order -> !order.getOrderDate().isBefore(startDate) && !order.getOrderDate().isAfter(endDate))
                 .flatMap(order -> order.getProducts().stream())
                 .toList();
-        System.out.println("Prodotti ordinati da clienti di livello 2 tra il 01-Feb-2021 e il 01-Apr-2021: " + productsOrderedByTier2);
+        System.out.println("Prodotti ordinati da clienti di livello 2 tra il 01-Feb-2021 e il 01-Apr-2021:");
+        printProducts(productsOrderedByTier2);
+    }
+
+    public static void printProducts(List<Product> products) {
+        products.forEach(product -> System.out.println(
+                "  - ID: " + product.getId() +
+                        ", Nome: " + product.getName() +
+                        ", Categoria: " + product.getCategory() +
+                        ", Prezzo: " + product.getPrice()));
+    }
+
+    public static void printOrders(List<Order> orders) {
+        orders.forEach(order -> {
+            System.out.println("  Ordine ID: " + order.getId() +
+                    ", Stato: " + order.getStatus() +
+                    ", Data ordine: " + order.getOrderDate() +
+                    ", Data consegna: " + order.getDeliveryDate() +
+                    ", Cliente: " + order.getCustomer().getName() +
+                    " (Tier " + order.getCustomer().getTier() + ")");
+            System.out.println("    Prodotti:");
+            printProducts(order.getProducts());
+        });
     }
 }
